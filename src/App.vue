@@ -7,7 +7,8 @@
       </select>
       <br />
       <div class="slidercontainer">
-        <input class="slider" type="range" min="0.5" max="3" />
+        <input v-model="speed" ref="speed" class="slider" type="range" min="0.5" max="3" />
+        <p>{{ speed }}</p>
       </div>
       <span></span>
       <br />
@@ -30,6 +31,9 @@ export default {
   components: {
     Header,
   },
+  mounted() {
+    this.$refs.speed.step = 0.5;
+  },
   created() {
     this.getVoices().then((voices) => {
       this.voiceList = voices;
@@ -42,6 +46,7 @@ export default {
       voiceList: null,
       selectedVoice: null,
       textToSpeech: 'I will read the following text according to the chosen language',
+      speed: 1,
     };
   },
   methods: {
@@ -59,8 +64,8 @@ export default {
     speak() {
       let toSpeak = new SpeechSynthesisUtterance(this.textToSpeech);
       toSpeak.voice = this.voiceList.find((v) => v.name == this.selectedVoice) || null;
+      toSpeak.rate = this.speed;
       this.tts.speak(toSpeak);
-      console.log(toSpeak.voice);
     },
   },
 };
