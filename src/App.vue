@@ -3,7 +3,7 @@
     <Header />
     <div class="app-container">
       <select>
-        <option></option>
+        <option v-for="voices in voiceList" :key="voices.voiceURI">{{ `${voices.name} - ${voices.lang}` }}</option>
       </select>
       <br />
       <div class="slidercontainer">
@@ -29,6 +29,30 @@ export default {
   name: 'App',
   components: {
     Header,
+  },
+  created() {
+    this.getVoices().then((voices) => {
+      this.voiceList = voices;
+    });
+  },
+  data() {
+    return {
+      tts: window.speechSynthesis,
+      voiceList: null,
+    };
+  },
+  methods: {
+    getVoices() {
+      let intervalID;
+      return new Promise((resolve) => {
+        intervalID = setInterval(() => {
+          if (this.tts.getVoices().length > 0) {
+            resolve(this.tts.getVoices());
+            clearInterval(intervalID);
+          }
+        }, 10);
+      });
+    },
   },
 };
 </script>
