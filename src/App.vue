@@ -2,8 +2,8 @@
   <div>
     <Header />
     <div class="app-container">
-      <select>
-        <option v-for="voices in voiceList" :key="voices.voiceURI">{{ `${voices.name} - ${voices.lang}` }}</option>
+      <select v-model="selectedVoice">
+        <option v-for="voices in voiceList" :key="voices.voiceURI">{{ voices.name }}</option>
       </select>
       <br />
       <div class="slidercontainer">
@@ -11,13 +11,13 @@
       </div>
       <span></span>
       <br />
-      <textarea cols="30" rows="10"></textarea>
+      <textarea cols="30" rows="10" v-model="textToSpeech"></textarea>
       <div class="previewContainer">
-        <span> </span>
+        <span></span>
       </div>
       <br />
-      <button class="btn red" type="button">
-        <span>Please Read!</span>
+      <button class="btn red" type="button" @click="speak">
+        <span>Please read the text!</span>
       </button>
     </div>
   </div>
@@ -33,12 +33,15 @@ export default {
   created() {
     this.getVoices().then((voices) => {
       this.voiceList = voices;
+      this.selectedVoice = 'Microsoft Tolga - Turkish (Turkey)';
     });
   },
   data() {
     return {
       tts: window.speechSynthesis,
       voiceList: null,
+      selectedVoice: null,
+      textToSpeech: 'I will read the following text according to the chosen language',
     };
   },
   methods: {
@@ -52,6 +55,12 @@ export default {
           }
         }, 10);
       });
+    },
+    speak() {
+      let toSpeak = new SpeechSynthesisUtterance(this.textToSpeech);
+      toSpeak.voice = this.voiceList.find((v) => v.name == this.selectedVoice) || null;
+      this.tts.speak(toSpeak);
+      console.log(toSpeak.voice);
     },
   },
 };
