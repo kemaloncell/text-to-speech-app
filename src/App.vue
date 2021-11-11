@@ -14,7 +14,7 @@
       <br />
       <textarea cols="30" rows="10" v-model="textToSpeech"></textarea>
       <div class="previewContainer">
-        <span></span>
+        <span :ref="`spoken_word_${i}`" v-for="(word, i) in textToSpeech.split(' ')" :key="i"> {{ word }}</span>
       </div>
       <br />
       <button class="btn red" type="button" @click="speak">
@@ -45,7 +45,7 @@ export default {
       tts: window.speechSynthesis,
       voiceList: null,
       selectedVoice: null,
-      textToSpeech: 'I will read the following text according to the chosen language',
+      textToSpeech: 'I will read the text according to the selected language',
       speed: 1,
     };
   },
@@ -65,7 +65,16 @@ export default {
       let toSpeak = new SpeechSynthesisUtterance(this.textToSpeech);
       toSpeak.voice = this.voiceList.find((v) => v.name == this.selectedVoice) || null;
       toSpeak.rate = this.speed;
+
+      toSpeak.onboundary = this.onBoundary;
+
       this.tts.speak(toSpeak);
+    },
+    onBoundary(event) {
+      const spokenWord = event.utterance.text.substr(event.charIndex, event.charLength);
+      const wordIndex = this.textToSpeech.split(' ').findIndex((w) => w == spokenWord);
+      this.$refs[`spoken_word_${wordIndex}`][0].classList.add('spoken_word');
+      // console.log(spokenWord, wordIndex, this.$refs[`spoken_word_${wordIndex}`]);
     },
   },
 };
